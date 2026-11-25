@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1088" width="100%" preserveAspectRatio="xMidYMin meet" role="img" aria-labelledby="archTitle archDesc" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <title id="archTitle">Autonomous Delegation v2 — control and information flow</title>
+  <desc id="archDesc">The user states intent to Main. Main freezes a revisioned task contract, launches exactly one background Supervisor with TASK_ASSIGNMENT, and then stops routine execution, review and supervision. The Supervisor issues EXECUTION_ORDER to one active-writer Executor (additional executors only for justified independent or verification work). Executors return EXECUTION_RESULT, EXECUTION_BLOCKED, or checkpoint EXECUTION_UPDATE. The Supervisor independently verifies each mandatory acceptance criterion in the VERIFYING state; a failure resumes the same Executor with concrete failed checks and then rechecks. Only meaningful events flow back to Main: TASK_ACCEPTED, PROGRESS_REPORT, DECISION_REQUEST and TASK_COMPLETED, TASK_BLOCKED or TASK_FAILED. When no live message channel exists, the native Agent result or notification is the handback, and undelivered information is never claimed as delivered. Unknown is never treated as pass; only independently verified criteria yield COMPLETED.</desc>
+
+  <defs>
+    <marker id="arrMain" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1,1 L9.4,5 L1,9 z" fill="#1d4ed8"/>
+    </marker>
+    <marker id="arrMainRev" viewBox="0 0 10 10" refX="0.8" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M9,1 L0.6,5 L9,9 z" fill="#1d4ed8"/>
+    </marker>
+    <marker id="arrSup" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1,1 L9.4,5 L1,9 z" fill="#7c3aed"/>
+    </marker>
+    <marker id="arrSupRev" viewBox="0 0 10 10" refX="0.8" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M9,1 L0.6,5 L9,9 z" fill="#7c3aed"/>
+    </marker>
+    <marker id="arrExec" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1,1 L9.4,5 L1,9 z" fill="#047857"/>
+    </marker>
+    <marker id="arrExecRev" viewBox="0 0 10 10" refX="0.8" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M9,1 L0.6,5 L9,9 z" fill="#047857"/>
+    </marker>
+    <marker id="arrMuted" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1,1 L9.4,5 L1,9 z" fill="#475569"/>
+    </marker>
+    <marker id="arrAmber" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1,1 L9.4,5 L1,9 z" fill="#b45309"/>
+    </marker>
+    <marker id="arrAmberRev" viewBox="0 0 10 10" refX="0.8" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M9,1 L0.6,5 L9,9 z" fill="#b45309"/>
+    </marker>
+  </defs>
+
+  <!-- canvas -->
+  <rect x="0" y="0" width="1400" height="1088" fill="#f5f7fa"/>
+
+  <!-- header -->
+  <g id="header">
+    <text x="50" y="46" font-size="27" font-weight="700" fill="#0f172a">Autonomous Delegation v2 — Control &amp; Information Flow</text>
+    <text x="50" y="76" font-size="14" fill="#475569">Main delegates once · one background Supervisor runs the management loop · Executors do the work · Main hears only what matters</text>
+    <line x1="50" y1="92" x2="1350" y2="92" stroke="#cbd5e1" stroke-width="1"/>
+  </g>
+
+  <!-- ================= USER ================= -->
+  <g id="user">
+    <rect x="50" y="118" width="340" height="74" rx="10" fill="#ffffff" stroke="#475569" stroke-width="1.6"/>
+    <text x="220" y="148" font-size="16" font-weight="700" fill="#0f172a" text-anchor="middle">USER</text>
+    <text x="220" y="172" font-size="11.5" fill="#475569" text-anchor="middle">intent · authorization · decisions</text>
+  </g>
+
+  <!-- user <-> main -->
+  <g id="link-user-main">
+    <line x1="220" y1="192" x2="220" y2="232" stroke="#1d4ed8" stroke-width="1.8" marker-start="url(#arrMainRev)" marker-end="url(#arrMain)"/>
+    <text x="232" y="217" font-size="11" fill="#1d4ed8">intent / answer</text>
+  </g>
+
+  <!-- ================= MAIN ================= -->
+  <g id="main">
+    <rect x="50" y="232" width="340" height="468" rx="12" fill="#eef4ff" stroke="#1d4ed8" stroke-width="2"/>
+    <text x="66" y="266" font-size="19" font-weight="700" fill="#1d4ed8">MAIN</text>
+    <text x="66" y="287" font-size="11" fill="#334155">foreground conversation · owns the contract</text>
+    <line x1="66" y1="299" x2="374" y2="299" stroke="#bfd3fb" stroke-width="1"/>
+
+    <text x="66" y="321" font-size="12.5" fill="#0f172a">• Writes the frozen task contract</text>
+    <text x="66" y="343" font-size="12.5" fill="#0f172a">• Initial revision 1; amendments</text>
+    <text x="78" y="361" font-size="12.5" fill="#0f172a">increment the revision (rev 2, 3, …)</text>
+    <text x="66" y="383" font-size="12.5" fill="#0f172a">• Launches exactly one background</text>
+    <text x="78" y="401" font-size="12.5" fill="#0f172a">Supervisor via TASK_ASSIGNMENT</text>
+    <text x="66" y="423" font-size="12.5" fill="#0f172a">• Retains task ID, revision, scope,</text>
+    <text x="78" y="441" font-size="12.5" fill="#0f172a">workspace and launch status</text>
+
+    <rect x="66" y="456" width="308" height="92" rx="8" fill="#fef2f2" stroke="#b91c1c" stroke-width="1.4"/>
+    <text x="80" y="478" font-size="12.5" font-weight="700" fill="#b91c1c">After launch, Main must NOT:</text>
+    <text x="80" y="499" font-size="12" fill="#7f1d1d">• perform routine execution</text>
+    <text x="80" y="517" font-size="12" fill="#7f1d1d">• review the work itself</text>
+    <text x="80" y="535" font-size="12" fill="#7f1d1d">• supervise the Executor</text>
+
+    <text x="66" y="575" font-size="12.5" font-weight="700" fill="#0f172a">Receives only meaningful events:</text>
+    <text x="70" y="595" font-size="10.8" fill="#334155">TASK_ACCEPTED · PROGRESS_REPORT</text>
+    <text x="70" y="612" font-size="10.8" fill="#334155">DECISION_REQUEST · AMENDMENT_ACK</text>
+    <text x="70" y="629" font-size="10.8" fill="#334155">TASK_COMPLETED · TASK_BLOCKED</text>
+    <text x="70" y="646" font-size="10.8" fill="#334155">TASK_FAILED</text>
+
+    <text x="66" y="672" font-size="11" fill="#475569">A status question is not a takeover.</text>
+    <text x="66" y="691" font-size="11" fill="#475569">Never infers COMPLETED from an exit.</text>
+  </g>
+
+  <!-- main -> supervisor -->
+  <g id="link-main-sup">
+    <line x1="390" y1="300" x2="520" y2="300" stroke="#1d4ed8" stroke-width="2" marker-end="url(#arrSup)"/>
+    <text x="455" y="290" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">TASK_ASSIGNMENT</text>
+    <text x="455" y="318" font-size="10" fill="#475569" text-anchor="middle">frozen contract</text>
+    <text x="455" y="332" font-size="10" fill="#475569" text-anchor="middle">revision N</text>
+  </g>
+
+  <!-- supervisor -> main events -->
+  <g id="link-sup-main">
+    <line x1="520" y1="620" x2="390" y2="620" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arrMain)"/>
+    <text x="455" y="610" font-size="10.5" font-weight="700" fill="#1d4ed8" text-anchor="middle">events only</text>
+    <text x="455" y="640" font-size="10" fill="#475569" text-anchor="middle">no routine</text>
+    <text x="455" y="654" font-size="10" fill="#475569" text-anchor="middle">management</text>
+  </g>
+
+  <!-- ================= SUPERVISOR ================= -->
+  <g id="supervisor">
+    <rect x="520" y="118" width="360" height="582" rx="12" fill="#f5f0ff" stroke="#7c3aed" stroke-width="2"/>
+    <text x="536" y="152" font-size="19" font-weight="700" fill="#7c3aed">SUPERVISOR</text>
+    <text x="536" y="173" font-size="11" fill="#334155">exactly one · background · owns the outcome</text>
+    <line x1="536" y1="185" x2="864" y2="185" stroke="#ddd0fb" stroke-width="1"/>
+
+    <text x="536" y="209" font-size="12" fill="#0f172a">• Reads every protocol file before acting</text>
+    <text x="536" y="231" font-size="12" fill="#0f172a">• TASK_ACCEPTED (once) when viable</text>
+    <text x="536" y="253" font-size="12" fill="#0f172a">• Launches Executor(s): EXECUTION_ORDER</text>
+    <text x="536" y="275" font-size="12" fill="#0f172a">• One active writer per shared resource</text>
+    <text x="536" y="297" font-size="12" fill="#0f172a">• Extra agents only for independent</text>
+    <text x="548" y="315" font-size="12" fill="#0f172a">work / verification, with disjoint</text>
+    <text x="548" y="333" font-size="12" fill="#0f172a">write boundaries</text>
+
+    <rect x="536" y="348" width="328" height="196" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4"/>
+    <text x="550" y="372" font-size="12.5" font-weight="700" fill="#5b21b6">Independent acceptance — VERIFYING</text>
+    <text x="550" y="394" font-size="11.5" fill="#312e81">Checks each mandatory criterion</text>
+    <text x="550" y="412" font-size="11.5" fill="#312e81">against the real deliverable; records</text>
+    <text x="550" y="430" font-size="11.5" fill="#312e81">pass / fail / unknown + evidence.</text>
+    <text x="550" y="456" font-size="11.5" fill="#312e81">Fail → resume the SAME Executor with</text>
+    <text x="550" y="474" font-size="11.5" fill="#312e81">concrete failed checks → recheck.</text>
+    <text x="550" y="500" font-size="11.5" font-weight="700" fill="#5b21b6">A check is never weakened to pass.</text>
+    <text x="550" y="524" font-size="11" fill="#4c1d95">Durable checkpoint at each transition.</text>
+
+    <text x="536" y="572" font-size="12" fill="#0f172a">• Intervenes only on evidence; no polling</text>
+    <text x="536" y="594" font-size="12" fill="#0f172a">• Reports only meaningful events to Main</text>
+    <text x="536" y="616" font-size="12" fill="#0f172a">• Never returns routine management</text>
+    <text x="548" y="634" font-size="12" fill="#0f172a">to Main</text>
+    <text x="536" y="656" font-size="12" fill="#0f172a">• Stops on deviation, risk or retry limit</text>
+    <text x="536" y="680" font-size="10.5" fill="#64748b">references/: role · control · communication ·</text>
+    <text x="548" y="694" font-size="10.5" fill="#64748b">lifecycle · claude-code adapter</text>
+  </g>
+
+  <!-- supervisor -> executor -->
+  <g id="link-sup-exec">
+    <line x1="880" y1="190" x2="1020" y2="190" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrExec)"/>
+    <text x="950" y="180" font-size="10.5" font-weight="700" fill="#7c3aed" text-anchor="middle">EXECUTION_ORDER</text>
+  </g>
+
+  <!-- executor -> supervisor -->
+  <g id="link-exec-sup">
+    <line x1="1020" y1="262" x2="880" y2="262" stroke="#047857" stroke-width="2" marker-end="url(#arrSupRev)"/>
+    <text x="950" y="252" font-size="10.5" font-weight="700" fill="#047857" text-anchor="middle">RESULT /</text>
+    <text x="950" y="277" font-size="10.5" font-weight="700" fill="#047857" text-anchor="middle">BLOCKED</text>
+  </g>
+
+  <!-- verification resume loop -->
+  <g id="link-verify-loop">
+    <line x1="880" y1="312" x2="1020" y2="312" stroke="#b45309" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#arrAmber)"/>
+    <text x="950" y="304" font-size="9.5" fill="#b45309" text-anchor="middle">resume same Executor</text>
+    <line x1="1020" y1="332" x2="880" y2="332" stroke="#b45309" stroke-width="1.8" stroke-dasharray="6 4" marker-start="url(#arrAmberRev)"/>
+    <text x="950" y="350" font-size="9.5" fill="#b45309" text-anchor="middle">recheck</text>
+  </g>
+
+  <!-- ================= EXECUTOR PRIMARY ================= -->
+  <g id="executor-primary">
+    <rect x="1020" y="118" width="330" height="226" rx="12" fill="#ecfdf5" stroke="#047857" stroke-width="2"/>
+    <text x="1036" y="148" font-size="17" font-weight="700" fill="#047857">EXECUTOR</text>
+    <text x="1036" y="168" font-size="11" fill="#334155">one active writer</text>
+    <line x1="1036" y1="180" x2="1334" y2="180" stroke="#a7f3d0" stroke-width="1"/>
+    <text x="1036" y="203" font-size="12" fill="#0f172a">• Implements within assigned scope</text>
+    <text x="1036" y="224" font-size="12" fill="#0f172a">• Self-checks and collects evidence</text>
+    <text x="1036" y="245" font-size="12" fill="#0f172a">• Returns EXECUTION_RESULT or</text>
+    <text x="1048" y="263" font-size="12" fill="#0f172a">EXECUTION_BLOCKED</text>
+    <text x="1048" y="281" font-size="11" fill="#334155">(EXECUTION_UPDATE at checkpoints)</text>
+    <text x="1036" y="305" font-size="12" fill="#0f172a">• Reports material blockers promptly</text>
+    <text x="1036" y="329" font-size="11.5" fill="#7f1d1d">Cannot change contract or claim acceptance</text>
+  </g>
+
+  <!-- ================= EXECUTOR ADDITIONAL ================= -->
+  <g id="executor-additional">
+    <rect x="1020" y="370" width="330" height="150" rx="12" fill="#f0fdf4" stroke="#047857" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <text x="1036" y="398" font-size="14" font-weight="700" fill="#047857">ADDITIONAL EXECUTOR</text>
+    <text x="1036" y="416" font-size="11" fill="#334155">only if justified</text>
+    <text x="1036" y="440" font-size="12" fill="#0f172a">• Independent work or verification</text>
+    <text x="1036" y="461" font-size="12" fill="#0f172a">• Non-overlapping write boundaries</text>
+    <text x="1036" y="482" font-size="12" fill="#0f172a">• Integration owner defined first</text>
+    <text x="1036" y="503" font-size="12" fill="#0f172a">• Never duplicate active work</text>
+  </g>
+
+  <!-- ================= UNKNOWN CALLOUT ================= -->
+  <g id="unknown-callout">
+    <rect x="1020" y="546" width="330" height="154" rx="12" fill="#fffbeb" stroke="#b45309" stroke-width="2"/>
+    <text x="1036" y="578" font-size="15" font-weight="700" fill="#b45309">UNKNOWN ≠ PASS</text>
+    <text x="1036" y="604" font-size="12" fill="#78350f">An unavailable or unobserved check</text>
+    <text x="1036" y="624" font-size="12" fill="#78350f">stays unknown. Only independently</text>
+    <text x="1036" y="644" font-size="12" fill="#78350f">verified criteria yield COMPLETED.</text>
+    <text x="1036" y="672" font-size="11" fill="#92400e">Silence is never evidence of</text>
+    <text x="1036" y="688" font-size="11" fill="#92400e">completion, failure or cancellation.</text>
+  </g>
+
+  <!-- ================= HANDBACK FALLBACK ================= -->
+  <g id="handback">
+    <rect x="50" y="726" width="1300" height="96" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="1.6"/>
+    <text x="70" y="754" font-size="13.5" font-weight="700" fill="#1e293b">Handback fallback — no live message channel</text>
+    <text x="70" y="778" font-size="12" fill="#334155">The native Agent result / notification carries the final or blocked report. Undelivered critical information is recorded as undelivered — never claimed as delivered.</text>
+    <text x="70" y="800" font-size="11.5" fill="#475569">When a live channel does exist, the handback still carries a complete, self-contained report so nothing is lost.</text>
+  </g>
+
+  <!-- ================= LEGEND ================= -->
+  <g id="legend">
+    <text x="66" y="852" font-size="12" font-weight="700" fill="#1e293b">Legend</text>
+    <line x1="130" y1="846" x2="180" y2="846" stroke="#475569" stroke-width="2" marker-end="url(#arrMuted)"/>
+    <text x="188" y="850" font-size="11" fill="#334155">control / assignment</text>
+    <line x1="380" y1="846" x2="430" y2="846" stroke="#b45309" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#arrAmber)"/>
+    <text x="438" y="850" font-size="11" fill="#334155">verification resume / recheck</text>
+    <line x1="690" y1="846" x2="740" y2="846" stroke="#1d4ed8" stroke-width="1.8" marker-start="url(#arrMainRev)" marker-end="url(#arrMain)"/>
+    <text x="748" y="850" font-size="11" fill="#334155">user intent / answer</text>
+
+    <rect x="130" y="872" width="14" height="14" rx="3" fill="#eef4ff" stroke="#1d4ed8" stroke-width="1.5"/>
+    <text x="152" y="884" font-size="11" fill="#334155">Main</text>
+    <rect x="230" y="872" width="14" height="14" rx="3" fill="#f5f0ff" stroke="#7c3aed" stroke-width="1.5"/>
+    <text x="252" y="884" font-size="11" fill="#334155">Supervisor</text>
+    <rect x="360" y="872" width="14" height="14" rx="3" fill="#ecfdf5" stroke="#047857" stroke-width="1.5"/>
+    <text x="382" y="884" font-size="11" fill="#334155">Executor</text>
+    <rect x="480" y="872" width="14" height="14" rx="3" fill="#fffbeb" stroke="#b45309" stroke-width="1.5"/>
+    <text x="502" y="884" font-size="11" fill="#334155">unknown / warning</text>
+    <rect x="650" y="872" width="14" height="14" rx="3" fill="#fef2f2" stroke="#b91c1c" stroke-width="1.5"/>
+    <text x="672" y="884" font-size="11" fill="#334155">prohibition</text>
+  </g>
+
+  <!-- ================= LIFECYCLE STRIP ================= -->
+  <g id="lifecycle">
+    <text x="66" y="934" font-size="12" font-weight="700" fill="#1e293b">Lifecycle states (Supervisor-owned)</text>
+
+    <rect x="66" y="948" width="118" height="34" rx="6" fill="#e2e8f0" stroke="#475569" stroke-width="1.2"/>
+    <text x="125" y="970" font-size="10" fill="#0f172a" text-anchor="middle">DISPATCHED</text>
+
+    <rect x="192" y="948" width="118" height="34" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.2"/>
+    <text x="251" y="970" font-size="10" fill="#0f172a" text-anchor="middle">RUNNING</text>
+
+    <rect x="318" y="948" width="118" height="34" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.2"/>
+    <text x="377" y="970" font-size="10" fill="#0f172a" text-anchor="middle">VERIFYING</text>
+
+    <rect x="444" y="948" width="118" height="34" rx="6" fill="#fef3c7" stroke="#b45309" stroke-width="1.2"/>
+    <text x="503" y="970" font-size="9.5" fill="#0f172a" text-anchor="middle">WAITING_DECISION</text>
+
+    <rect x="570" y="948" width="118" height="34" rx="6" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.2"/>
+    <text x="629" y="970" font-size="10" fill="#0f172a" text-anchor="middle">BLOCKED</text>
+
+    <rect x="696" y="948" width="118" height="34" rx="6" fill="#f1f5f9" stroke="#475569" stroke-width="1.2"/>
+    <text x="755" y="970" font-size="10" fill="#0f172a" text-anchor="middle">CANCELLING</text>
+
+    <rect x="822" y="948" width="118" height="34" rx="6" fill="#dcfce7" stroke="#047857" stroke-width="1.2"/>
+    <text x="881" y="970" font-size="10" fill="#0f172a" text-anchor="middle">COMPLETED</text>
+
+    <rect x="948" y="948" width="118" height="34" rx="6" fill="#fecaca" stroke="#b91c1c" stroke-width="1.2"/>
+    <text x="1007" y="970" font-size="10" fill="#0f172a" text-anchor="middle">FAILED</text>
+
+    <rect x="1074" y="948" width="118" height="34" rx="6" fill="#e2e8f0" stroke="#475569" stroke-width="1.2"/>
+    <text x="1133" y="970" font-size="10" fill="#0f172a" text-anchor="middle">CANCELLED</text>
+
+    <rect x="1200" y="948" width="118" height="34" rx="6" fill="#fef9c3" stroke="#b45309" stroke-width="1.2"/>
+    <text x="1259" y="970" font-size="10" fill="#0f172a" text-anchor="middle">UNKNOWN</text>
+
+    <text x="66" y="1008" font-size="11" fill="#475569">Terminal means: COMPLETED = all mandatory criteria independently verified · FAILED / CANCELLED close only this run · a retry is a new, explicitly authorized run.</text>
+    <text x="66" y="1028" font-size="11" fill="#475569">UNKNOWN means observability lost — reconcile before acting; silence is never evidence of completion, failure, or cancellation.</text>
+  </g>
+</svg>

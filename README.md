@@ -2,6 +2,8 @@
 
 A protocol-oriented Skill for Claude Code. It changes the workflow, control flow, and information flow rather than re-teaching the model how to write code or tests. Main writes the task assignment and delegates to a background Supervisor; the Supervisor delegates to Executors, supervises, and independently verifies; Main only receives information worth knowing.
 
+![Architecture: Main delegates to one background Supervisor, which manages Executors, verifies outcomes, and reports only meaningful events to Main](assets/architecture.svg)
+
 ## Installation
 
 ### With the Skills CLI (recommended)
