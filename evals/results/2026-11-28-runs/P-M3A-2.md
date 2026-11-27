@@ -1,0 +1,6 @@
+1. To the Supervisor `a1b2`:
+- DECISION_RESPONSE (T-101 rev 1, answering your DECISION_REQUEST): authorized, option (a), `fake-session` as a dev dependency in `/work/app`; the user's original request already allows needed libraries; nothing is committed, pushed, deployed, published or changed outside `/work/app`.
+- TASK_AMENDMENT (T-101, revision 2): on that authorization, only the authority line changes, from "No new dependencies" to "Libraries the task needs may be added without asking; report each with its version and license"; everything else, including C1–C3, is unchanged.
+2. To the user: The Supervisor says the tests need a fake session store and recommends the dev dependency `fake-session` (by its account MIT and widely used; I have not checked) over an in-house one costing two hours more. My contract wrongly said no new dependencies, against your instruction to add whatever libraries are needed, so I approved it and corrected the contract; nothing is committed or pushed.
+3. To any other agent: none.
+4. State: RUNNING, because a valid response ends WAITING_DECISION and only a constraint changed, not the criteria or the work in progress. The user had already authorized libraries, so no question went to them; completion still waits for the Supervisor's checks of C1–C3.

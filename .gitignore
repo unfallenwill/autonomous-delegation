@@ -1,3 +1,4 @@
 # Local skills CLI install artifacts
 .claude/
 skills-lock.json
+__pycache__/

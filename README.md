@@ -4,7 +4,7 @@ A Claude Code Skill that hands a task to a background Supervisor and keeps your 
 
 Autonomous Delegation changes who owns a task, not the standard of the work. You state the outcome once; Main freezes it as a revisioned contract, launches exactly one background Supervisor, and returns your turn. The Supervisor runs the management loop with Executor agents, verifies each acceptance criterion against the real deliverable, and keeps you posted as the work proceeds: progress, the decisions behind it, and the problems that come up.
 
-**Status:** this is the `cognitive-framing` branch. Each role is given its stance, the weights it holds and the reasons for them, in place of ten scattered judgment rules. The texts were checked with single-role probes: fifteen situations once each on an earlier wording, and three probes on the final text. This wording has not been run on a real task, and its stability across runs, which is what it is for, has not been measured. See [The cognitive frame](#the-cognitive-frame) and [Evaluation](#evaluation).
+**Status:** this is the `cognitive-framing` branch. Each role is given its stance, the weights it holds and the reasons for them, in place of the scattered judgment rules that carried the same weights. The texts were checked with single-role probes: seven situations were run three times under this wording and three times under the rule-based protocol on `main`, and four situations that no rule addresses directly were run twice under each. The intended behaviour appeared in every run under both. This wording has not been run on a real task. See [The cognitive frame](#the-cognitive-frame) and [Evaluation](#evaluation).
 
 ## Start in under a minute
 
@@ -179,14 +179,16 @@ On this branch each role is first told how it weighs things, and why. The text s
 | Autonomy over asking: a decision that is yours is not passed upward | A question hands the task back. The user delegated to be free of it. |
 | Trust over progress: one mistake costs more than one step gains | Autonomy rests on trust. Once lost, every step is watched. |
 | Judgment over relay: a report carries the reporter's own assessment | A report passed on as it came makes the user do the judging. |
+| Not pretending to know: what has not been checked is said to be a belief, not a fact | A guess passed on as a fact closes off the remedy: the user could still act on a doubt, but cannot undo a fact they trusted. |
+| Respecting reality: when what is found contradicts a judgment, the finding wins | A judgment is only a tool for getting the work done. Holding on to one that the facts have passed gains nothing. |
 
-Trust pulls toward caution and autonomy toward deciding alone. They are ordered this way: autonomy inside what was authorized, caution at its edge. Inside it the user has already decided, by authorizing. Where a choice would change the scope, the cost or something that cannot be undone, the user has not, and the role stops and asks.
+Trust pulls toward caution and autonomy toward deciding alone. They are ordered this way: autonomy inside what was authorized, caution at its edge. Inside it the user has already decided, by authorizing. Where a choice would change the scope, the cost or something that cannot be undone, the user has not, and the role stops and asks. Authorization is not exemption: inside the boundary the role is still answerable for what its choices cost.
 
 | Role | Holds |
 |---|---|
-| **Supervisor** | All four |
-| **Main** | Autonomy, trust, judgment |
-| **Executor** | Delivery, autonomy, trust |
+| **Supervisor** | All six |
+| **Main** | All but delivery: checking the deliverable is the Supervisor's work |
+| **Executor** | All but judgment: comparing an account with the facts is the Supervisor's work |
 
 The meaning, the reasons and the ordering were agreed with the owner on 2026-11-28. The record, with what to look for on real work, is in [`evals/cognitive-frame.md`](evals/cognitive-frame.md).
 
@@ -257,9 +259,11 @@ autonomous-delegation/
 ├── assets/
 │   ├── architecture-overview.svg
 │   └── architecture.svg
-├── evals/                 # Not read by the model: the situations, conditions and records behind the evaluation
+├── evals/                 # Not read by the model: the record behind the wording
 │   ├── cognitive-frame.md
+│   ├── manual-audit.md
 │   ├── scenarios.md
+│   ├── audit/
 │   ├── conditions/
 │   └── results/
 ├── README.md             # Human documentation (this file)
@@ -287,7 +291,7 @@ If background or nested execution is unavailable, the skill reports a blocker in
 - **The runtime can lose a child's report, and agents cannot always wait.** In the Claude Code build tested, a named Supervisor waiting on a nested call never received the Executor's final report, and a named Executor reports to Main instead of handing its report back. The skill therefore launches the Supervisor and its Executors unnamed, has Executors write results to an agreed location, and treats a missing report as unknown, never as completion. A Supervisor cannot idle while an Executor runs: it keeps working in bounded steps until the result arrives. An unnamed Supervisor is not told its own address, so Main sends it its agent ID right after launch, and Executors report to the Supervisor through that ID.
 - **Cancellation is not rollback.** A cancelled run reports residual changes and does not erase them without authorization.
 - **Frontmatter portability.** `argument-hint` and `disable-model-invocation` are Claude Code fields; the portable Agent Skills specification allows only `name`, `description`, `license`, `compatibility`, `metadata`, and `allowed-tools`.
-- **Validation status.** The package has been statically checked. The rule-based protocol on `main` was run end to end on two real small tasks on one model, once as committed and once with two later corrections, with no false completion. The correction loop was not exercised, because every run passed on the first attempt. This branch's wording has been checked with single-role probes and has not been run on a real task. Nothing has been run on a real, sizeable task. The two-round convergence default is a design choice, not an experimentally validated optimum.
+- **Validation status.** The package has been statically checked. The rule-based protocol on `main` was run end to end on two real small tasks on one model, once as committed and once with two later corrections, with no false completion. The correction loop was not exercised, because every run passed on the first attempt. This branch's wording has been checked with single-role probes, each situation several times and compared with the rule-based protocol, and has not been run on a real task. Nothing has been run on a real, sizeable task. The two-round convergence default is a design choice, not an experimentally validated optimum.
 
 ## Evaluation
 
@@ -314,7 +318,8 @@ This package has been statically checked, and its runtime mechanics (launch, add
 
 - **Single-role probes.** Each of the fifteen situations in `evals/scenarios.md` was run under the rule-based protocol, under an earlier stance wording, and with no protocol at all. All three behaved alike on the substance. What the protocol changes is listed in `evals/results/2026-11-27-none.md`.
 - **Real tasks.** The split task and the pricing task were each done three ways: by the chain, by one agent given the contract, and by one agent given one sentence. All three ways met each task. On the pricing task, scored by hidden tests, all three scored full marks. The chain cost the most. See `evals/results/2026-11-27-baseline-vs-chain.md` and `evals/results/2026-11-27-pricing-task.md`.
-- **Not yet done.** The stability comparison that the cognitive frame is for, and any run of this branch's wording on a real task.
+- **Stability and reach.** On this branch, seven situations were run three times under this wording and three times under the rule-based protocol, 42 runs, and four situations that no rule addresses directly were run twice under each, 16 runs. The intended behaviour appeared in every run under both. So the stance wording is as stable as the rules and carries into situations that no rule addresses. It was not shown to be more stable or to reach further. See `evals/results/2026-11-28-stability-and-reach.md`.
+- **Not yet done.** Any run of this branch's wording on a real task.
 
 ## Contributing
 

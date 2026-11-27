@@ -2,7 +2,7 @@
 
 ## Supervisor entry
 
-On receiving TASK_ASSIGNMENT, read all protocol files, including the runtime adapter. Check task ID, revision, accessible specification, workspace, permissions and ability to spawn an Executor. If viable, take ownership and issue TASK_ACCEPTED when a live channel exists (otherwise include it in the final handback). Otherwise report BLOCKED without claiming execution began. When a live channel exists, check before you send TASK_ACCEPTED whether Main's SUPERVISOR_ADDRESS message has arrived. If it has not, say so in TASK_ACCEPTED and continue with preparation that needs no Executor. Launch without the address only when nothing of that is left, and then expect Executors to report to Main.
+On receiving TASK_ASSIGNMENT, read all protocol files, including the runtime adapter. Check task ID, revision, accessible specification, workspace, permissions and ability to spawn an Executor. If viable, take ownership and issue TASK_ACCEPTED when a live channel exists (otherwise include it in the final handback). Otherwise report BLOCKED. When a live channel exists, check before you send TASK_ACCEPTED whether Main's SUPERVISOR_ADDRESS message has arrived. If it has not, say so in TASK_ACCEPTED and continue with preparation that needs no Executor. Launch without the address only when nothing of that is left, and then expect Executors to report to Main.
 
 ## Management loop
 
