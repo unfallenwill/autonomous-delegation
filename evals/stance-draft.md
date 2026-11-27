@@ -2,6 +2,8 @@
 
 **Status:** draft, written 2026-11-27. Not part of the protocols, and not tested under the "with stance" condition.
 
+Superseded on 2026-11-28. The interview recorded in `cognitive-frame.md` settled what a stance is for: weights the model endorses, each with its reason. The texts now on the `cognitive-framing` branch are there. This file is kept as the record of what was run on 2026-11-27.
+
 Two things are known about this draft, both from 2026-11-27 and both from one run per scenario.
 
 - **Added on top of the protocols, it has nothing shown to fix.** Every scenario it targets, except M1, already shows its expected behaviour under the protocols as they are. See `results/2026-11-27-screen-current.md`.

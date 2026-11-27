@@ -4,7 +4,7 @@ A Claude Code Skill that hands a task to a background Supervisor and keeps your 
 
 Autonomous Delegation changes who owns a task, not the standard of the work. You state the outcome once; Main freezes it as a revisioned contract, launches exactly one background Supervisor, and returns your turn. The Supervisor runs the management loop with Executor agents, verifies each acceptance criterion against the real deliverable, and keeps you posted as the work proceeds: progress, the decisions behind it, and the problems that come up.
 
-**Status:** revised for progress reporting. Statically checked for files, references, frontmatter, and ZIP integrity. Runtime capabilities and message routing were probed in a live Claude Code session, and the full flow was run end-to-end twice on small smoke-test tasks. The second, which used an earlier wording of the Supervisor's reports, confirmed that Executors report to the Supervisor live; the final wording has not been run end-to-end. See [Evaluation](#evaluation).
+**Status:** this is the `cognitive-framing` branch. Each role is given its stance, the weights it holds and the reasons for them, in place of ten scattered judgment rules. The texts were checked with single-role probes: fifteen situations once each on an earlier wording, and three probes on the final text. This wording has not been run on a real task, and its stability across runs, which is what it is for, has not been measured. See [The cognitive frame](#the-cognitive-frame) and [Evaluation](#evaluation).
 
 ## Start in under a minute
 
@@ -12,6 +12,12 @@ Install globally for Claude Code:
 
 ```bash
 npx skills add unfallenwill/autonomous-delegation --agent claude-code --global
+```
+
+For the `cognitive-framing` branch, clone the branch instead:
+
+```bash
+git clone -b cognitive-framing https://github.com/unfallenwill/autonomous-delegation.git ~/.claude/skills/autonomous-delegation
 ```
 
 Start a new Claude Code session, then hand off a task:
@@ -29,6 +35,7 @@ Main records the contract, launches the Supervisor, tells you it was launched, a
 - [Installation](#installation)
 - [Usage](#usage)
 - [How it works](#how-it-works)
+- [The cognitive frame](#the-cognitive-frame)
 - [Skill metadata and repository layout](#skill-metadata-and-repository-layout)
 - [Requirements](#requirements)
 - [Compatibility and limitations](#compatibility-and-limitations)
@@ -162,6 +169,27 @@ Anything you say about reporting is carried into the task contract: it sets the 
 
 Main authors the contract and freezes it at revision 1; only Main can issue an amendment that increments the revision. The Supervisor may clarify execution details and derive verification checks but may not weaken requirements, expand scope, or grant permissions.
 
+### The cognitive frame
+
+On this branch each role is first told how it weighs things, and why. The text states a situation and what matters in it. It gives no prohibition and no step; what follows from it is the role's to work out. The steps and the facts about the runtime that a role could not work out for itself stay where they were.
+
+| Weight | Reason |
+|---|---|
+| Delivery over appearance: a result that has been verified, not progress that looks like progress | Nobody checks behind the user. They know the work only through reports. |
+| Autonomy over asking: a decision that is yours is not passed upward | A question hands the task back. The user delegated to be free of it. |
+| Trust over progress: one mistake costs more than one step gains | Autonomy rests on trust. Once lost, every step is watched. |
+| Judgment over relay: a report carries the reporter's own assessment | A report passed on as it came makes the user do the judging. |
+
+Trust pulls toward caution and autonomy toward deciding alone. They are ordered this way: autonomy inside what was authorized, caution at its edge. Inside it the user has already decided, by authorizing. Where a choice would change the scope, the cost or something that cannot be undone, the user has not, and the role stops and asks.
+
+| Role | Holds |
+|---|---|
+| **Supervisor** | All four |
+| **Main** | Autonomy, trust, judgment |
+| **Executor** | Delivery, autonomy, trust |
+
+The meaning, the reasons and the ordering were agreed with the owner on 2026-11-28. The record, with what to look for on real work, is in [`evals/cognitive-frame.md`](evals/cognitive-frame.md).
+
 ### Verification loop
 
 1. Main launches exactly one background Supervisor with a complete TASK_ASSIGNMENT and the absolute paths to the protocol files, then sends it its own agent ID.
@@ -229,6 +257,11 @@ autonomous-delegation/
 ├── assets/
 │   ├── architecture-overview.svg
 │   └── architecture.svg
+├── evals/                 # Not read by the model: the situations, conditions and records behind the evaluation
+│   ├── cognitive-frame.md
+│   ├── scenarios.md
+│   ├── conditions/
+│   └── results/
 ├── README.md             # Human documentation (this file)
 └── LICENSE
 ```
@@ -254,7 +287,7 @@ If background or nested execution is unavailable, the skill reports a blocker in
 - **The runtime can lose a child's report, and agents cannot always wait.** In the Claude Code build tested, a named Supervisor waiting on a nested call never received the Executor's final report, and a named Executor reports to Main instead of handing its report back. The skill therefore launches the Supervisor and its Executors unnamed, has Executors write results to an agreed location, and treats a missing report as unknown, never as completion. A Supervisor cannot idle while an Executor runs: it keeps working in bounded steps until the result arrives. An unnamed Supervisor is not told its own address, so Main sends it its agent ID right after launch, and Executors report to the Supervisor through that ID.
 - **Cancellation is not rollback.** A cancelled run reports residual changes and does not erase them without authorization.
 - **Frontmatter portability.** `argument-hint` and `disable-model-invocation` are Claude Code fields; the portable Agent Skills specification allows only `name`, `description`, `license`, `compatibility`, `metadata`, and `allowed-tools`.
-- **Validation status.** The package has been statically checked, and its runtime assumptions (nesting, background launch, message routing, child handback) were probed in a live Claude Code session. The full flow was then run end-to-end twice on small smoke-test tasks. In the second run every Executor update reached the Supervisor live and the handback reached it too, while Main received only the Supervisor's reports. That run used an earlier wording in which the Supervisor relayed each update; the final wording, in which it reports its own judgment, has not been run end-to-end. The correction loop has not been exercised either, because both runs passed first time. Nothing has been run on a real, sizeable task. The two-round convergence default is a design choice, not an experimentally validated optimum.
+- **Validation status.** The package has been statically checked. The rule-based protocol on `main` was run end to end on two real small tasks on one model, once as committed and once with two later corrections, with no false completion. The correction loop was not exercised, because every run passed on the first attempt. This branch's wording has been checked with single-role probes and has not been run on a real task. Nothing has been run on a real, sizeable task. The two-round convergence default is a design choice, not an experimentally validated optimum.
 
 ## Evaluation
 
@@ -271,10 +304,17 @@ Compare against a baseline without the skill using the same specification, model
 | Independent acceptance | Independent check evidence exists; unknown or failed is never labeled COMPLETED |
 | Exception handling | Honest degradation when no channel exists; blocking, cancellation, and recovery do not duplicate active tasks |
 | Cost and quality | Records total tokens, elapsed time, acceptance pass rate, Main tokens, Main's first-release latency, and intervention count |
+| Stability across runs | The same situation, run many times, lands on the intended behaviour about as often from one batch to the next, and more often than under the rule-based protocol |
+
+The last row is the measure for the cognitive frame on this branch. The frame is there for consistency from one run to the next, so a single run cannot show whether it works.
 
 Suggested smoke test: in a temporary directory, delegate a simple verifiable file-generation task and check the real invocation records of both agent layers; send an unrelated request to Main during execution; then simulate an unpassable acceptance check, a missing message channel, and a cancellation. Cross-check message sources, revisions, and states against the trace. Run tests only in approved directories.
 
-This package has been statically checked for files, references, frontmatter, and ZIP integrity, its runtime assumptions were probed in a live Claude Code session, and the full flow was run end-to-end on two small smoke-test tasks, the second with an earlier wording of the Supervisor's reports. The two-round convergence default in the verification loop is an adjustable design default, not an experimentally validated optimum.
+This package has been statically checked, and its runtime mechanics (launch, address message, routing, handback) have run end to end on real small tasks. What the probes and the real tasks showed, all on one model and once per run:
+
+- **Single-role probes.** Each of the fifteen situations in `evals/scenarios.md` was run under the rule-based protocol, under an earlier stance wording, and with no protocol at all. All three behaved alike on the substance. What the protocol changes is listed in `evals/results/2026-11-27-none.md`.
+- **Real tasks.** The split task and the pricing task were each done three ways: by the chain, by one agent given the contract, and by one agent given one sentence. All three ways met each task. On the pricing task, scored by hidden tests, all three scored full marks. The chain cost the most. See `evals/results/2026-11-27-baseline-vs-chain.md` and `evals/results/2026-11-27-pricing-task.md`.
+- **Not yet done.** The stability comparison that the cognitive frame is for, and any run of this branch's wording on a real task.
 
 ## Contributing
 
