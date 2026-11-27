@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1088" width="100%" preserveAspectRatio="xMidYMin meet" role="img" aria-labelledby="archTitle archDesc" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
-  <title id="archTitle">Autonomous Delegation v2 — control and information flow</title>
-  <desc id="archDesc">The user states intent to Main. Main freezes a revisioned task contract, launches exactly one background Supervisor with TASK_ASSIGNMENT, and then stops routine execution, review and supervision. The Supervisor issues EXECUTION_ORDER to one active-writer Executor (additional executors only for justified independent or verification work). Executors return EXECUTION_RESULT, EXECUTION_BLOCKED, or checkpoint EXECUTION_UPDATE. The Supervisor independently verifies each mandatory acceptance criterion in the VERIFYING state; a failure resumes the same Executor with concrete failed checks and then rechecks. Only meaningful events flow back to Main: TASK_ACCEPTED, PROGRESS_REPORT, DECISION_REQUEST and TASK_COMPLETED, TASK_BLOCKED or TASK_FAILED. When no live message channel exists, the native Agent result or notification is the handback, and undelivered information is never claimed as delivered. Unknown is never treated as pass; only independently verified criteria yield COMPLETED.</desc>
+  <title id="archTitle">Autonomous Delegation — control and information flow</title>
+  <desc id="archDesc">The user states intent to Main. Main freezes a revisioned task contract, launches exactly one background Supervisor with TASK_ASSIGNMENT, sends it its own agent ID, and then stops routine execution, review and supervision. The Supervisor issues EXECUTION_ORDER to one active-writer Executor (additional executors only for justified independent or verification work). Executors report progress, decisions and problems in EXECUTION_UPDATE to the Supervisor only, and return EXECUTION_RESULT or EXECUTION_BLOCKED. The Supervisor reports its own checks and decisions, and the Executor news worth knowing, to Main. The Supervisor independently verifies each mandatory acceptance criterion in the VERIFYING state; a failure resumes the same Executor with concrete failed checks and then rechecks. The Supervisor reports to Main: TASK_ACCEPTED, PROGRESS_REPORT, DECISION_REQUEST and TASK_COMPLETED, TASK_BLOCKED or TASK_FAILED. The terminal report reaches Main as the Supervisor's handback, and undelivered information is never claimed as delivered. Unknown is never treated as pass; only independently verified criteria yield COMPLETED.</desc>
 
   <defs>
     <marker id="arrMain" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto">
@@ -38,8 +38,8 @@
 
   <!-- header -->
   <g id="header">
-    <text x="50" y="46" font-size="27" font-weight="700" fill="#0f172a">Autonomous Delegation v2 — Control &amp; Information Flow</text>
-    <text x="50" y="76" font-size="14" fill="#475569">Main delegates once · one background Supervisor runs the management loop · Executors do the work · Main hears only what matters</text>
+    <text x="50" y="46" font-size="27" font-weight="700" fill="#0f172a">Autonomous Delegation — Control &amp; Information Flow</text>
+    <text x="50" y="76" font-size="14" fill="#475569">Main delegates once · one background Supervisor runs the management loop · Executors do the work · progress, decisions and problems are reported as they happen</text>
     <line x1="50" y1="92" x2="1350" y2="92" stroke="#cbd5e1" stroke-width="1"/>
   </g>
 
@@ -67,7 +67,7 @@
     <text x="66" y="343" font-size="12.5" fill="#0f172a">• Initial revision 1; amendments</text>
     <text x="78" y="361" font-size="12.5" fill="#0f172a">increment the revision (rev 2, 3, …)</text>
     <text x="66" y="383" font-size="12.5" fill="#0f172a">• Launches exactly one background</text>
-    <text x="78" y="401" font-size="12.5" fill="#0f172a">Supervisor via TASK_ASSIGNMENT</text>
+    <text x="78" y="401" font-size="12.5" fill="#0f172a">Supervisor, then sends it its agent ID</text>
     <text x="66" y="423" font-size="12.5" fill="#0f172a">• Retains task ID, revision, scope,</text>
     <text x="78" y="441" font-size="12.5" fill="#0f172a">workspace and launch status</text>
 
@@ -77,11 +77,11 @@
     <text x="80" y="517" font-size="12" fill="#7f1d1d">• review the work itself</text>
     <text x="80" y="535" font-size="12" fill="#7f1d1d">• supervise the Executor</text>
 
-    <text x="66" y="575" font-size="12.5" font-weight="700" fill="#0f172a">Receives only meaningful events:</text>
+    <text x="66" y="575" font-size="12.5" font-weight="700" fill="#0f172a">Receives reports and events:</text>
     <text x="70" y="595" font-size="10.8" fill="#334155">TASK_ACCEPTED · PROGRESS_REPORT</text>
     <text x="70" y="612" font-size="10.8" fill="#334155">DECISION_REQUEST · AMENDMENT_ACK</text>
-    <text x="70" y="629" font-size="10.8" fill="#334155">TASK_COMPLETED · TASK_BLOCKED</text>
-    <text x="70" y="646" font-size="10.8" fill="#334155">TASK_FAILED</text>
+    <text x="70" y="629" font-size="10.8" fill="#334155">STATUS_REPORT · TASK_COMPLETED</text>
+    <text x="70" y="646" font-size="10.8" fill="#334155">TASK_BLOCKED · TASK_FAILED · CANCELLED</text>
 
     <text x="66" y="672" font-size="11" fill="#475569">A status question is not a takeover.</text>
     <text x="66" y="691" font-size="11" fill="#475569">Never infers COMPLETED from an exit.</text>
@@ -98,9 +98,9 @@
   <!-- supervisor -> main events -->
   <g id="link-sup-main">
     <line x1="520" y1="620" x2="390" y2="620" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arrMain)"/>
-    <text x="455" y="610" font-size="10.5" font-weight="700" fill="#1d4ed8" text-anchor="middle">events only</text>
-    <text x="455" y="640" font-size="10" fill="#475569" text-anchor="middle">no routine</text>
-    <text x="455" y="654" font-size="10" fill="#475569" text-anchor="middle">management</text>
+    <text x="455" y="610" font-size="10.5" font-weight="700" fill="#1d4ed8" text-anchor="middle">progress reports</text>
+    <text x="455" y="640" font-size="10" fill="#475569" text-anchor="middle">decisions, problems</text>
+    <text x="455" y="654" font-size="10" fill="#475569" text-anchor="middle">no routine mgmt</text>
   </g>
 
   <!-- ================= SUPERVISOR ================= -->
@@ -111,7 +111,7 @@
     <line x1="536" y1="185" x2="864" y2="185" stroke="#ddd0fb" stroke-width="1"/>
 
     <text x="536" y="209" font-size="12" fill="#0f172a">• Reads every protocol file before acting</text>
-    <text x="536" y="231" font-size="12" fill="#0f172a">• TASK_ACCEPTED (once) when viable</text>
+    <text x="536" y="231" font-size="12" fill="#0f172a">• TASK_ACCEPTED (once) to Main</text>
     <text x="536" y="253" font-size="12" fill="#0f172a">• Launches Executor(s): EXECUTION_ORDER</text>
     <text x="536" y="275" font-size="12" fill="#0f172a">• One active writer per shared resource</text>
     <text x="536" y="297" font-size="12" fill="#0f172a">• Extra agents only for independent</text>
@@ -129,7 +129,7 @@
     <text x="550" y="524" font-size="11" fill="#4c1d95">Durable checkpoint at each transition.</text>
 
     <text x="536" y="572" font-size="12" fill="#0f172a">• Intervenes only on evidence; no polling</text>
-    <text x="536" y="594" font-size="12" fill="#0f172a">• Reports only meaningful events to Main</text>
+    <text x="536" y="594" font-size="12" fill="#0f172a">• Reports checks, decisions, problems</text>
     <text x="536" y="616" font-size="12" fill="#0f172a">• Never returns routine management</text>
     <text x="548" y="634" font-size="12" fill="#0f172a">to Main</text>
     <text x="536" y="656" font-size="12" fill="#0f172a">• Stops on deviation, risk or retry limit</text>
@@ -146,8 +146,8 @@
   <!-- executor -> supervisor -->
   <g id="link-exec-sup">
     <line x1="1020" y1="262" x2="880" y2="262" stroke="#047857" stroke-width="2" marker-end="url(#arrSupRev)"/>
-    <text x="950" y="252" font-size="10.5" font-weight="700" fill="#047857" text-anchor="middle">RESULT /</text>
-    <text x="950" y="277" font-size="10.5" font-weight="700" fill="#047857" text-anchor="middle">BLOCKED</text>
+    <text x="950" y="252" font-size="10.5" font-weight="700" fill="#047857" text-anchor="middle">EXECUTION_UPDATE,</text>
+    <text x="950" y="277" font-size="10.5" font-weight="700" fill="#047857" text-anchor="middle">RESULT / BLOCKED</text>
   </g>
 
   <!-- verification resume loop -->
@@ -168,8 +168,8 @@
     <text x="1036" y="224" font-size="12" fill="#0f172a">• Self-checks and collects evidence</text>
     <text x="1036" y="245" font-size="12" fill="#0f172a">• Returns EXECUTION_RESULT or</text>
     <text x="1048" y="263" font-size="12" fill="#0f172a">EXECUTION_BLOCKED</text>
-    <text x="1048" y="281" font-size="11" fill="#334155">(EXECUTION_UPDATE at checkpoints)</text>
-    <text x="1036" y="305" font-size="12" fill="#0f172a">• Reports material blockers promptly</text>
+    <text x="1048" y="281" font-size="11" fill="#334155">(result also written to the result location)</text>
+    <text x="1036" y="305" font-size="12" fill="#0f172a">• Reports progress, decisions, problems</text>
     <text x="1036" y="329" font-size="11.5" fill="#7f1d1d">Cannot change contract or claim acceptance</text>
   </g>
 
@@ -198,9 +198,9 @@
   <!-- ================= HANDBACK FALLBACK ================= -->
   <g id="handback">
     <rect x="50" y="726" width="1300" height="96" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="1.6"/>
-    <text x="70" y="754" font-size="13.5" font-weight="700" fill="#1e293b">Handback fallback — no live message channel</text>
-    <text x="70" y="778" font-size="12" fill="#334155">The native Agent result / notification carries the final or blocked report. Undelivered critical information is recorded as undelivered — never claimed as delivered.</text>
-    <text x="70" y="800" font-size="11.5" fill="#475569">When a live channel does exist, the handback still carries a complete, self-contained report so nothing is lost.</text>
+    <text x="70" y="754" font-size="13.5" font-weight="700" fill="#1e293b">Handback — the final or blocked report</text>
+    <text x="70" y="778" font-size="12" fill="#334155">The terminal report reaches Main as the Supervisor's handback. Undelivered critical information is recorded as undelivered — never claimed as delivered.</text>
+    <text x="70" y="800" font-size="11.5" fill="#475569">Without a live message channel, everything due to Main travels in it, so the report is always complete and self-contained.</text>
   </g>
 
   <!-- ================= LEGEND ================= -->
