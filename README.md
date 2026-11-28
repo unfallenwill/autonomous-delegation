@@ -4,7 +4,7 @@ A Claude Code Skill that hands a task to a background Supervisor and keeps your 
 
 Autonomous Delegation changes who owns a task, not the standard of the work. You state the outcome once; Main freezes it as a revisioned contract, launches exactly one background Supervisor, and returns your turn. The Supervisor runs the management loop with Executor agents, verifies each acceptance criterion against the real deliverable, and keeps you posted as the work proceeds: progress, the decisions behind it, and the problems that come up.
 
-**Status:** this is the `cognitive-framing` branch. Each role is given its stance, the weights it holds and the reasons for them, in place of the scattered judgment rules that carried the same weights. The texts were checked with single-role probes: seven situations were run three times under this wording and three times under the rule-based protocol on `main`, and four situations that no rule addresses directly were run twice under each. The intended behaviour appeared in every run under both. This wording has not been run on a real task. See [The cognitive frame](#the-cognitive-frame) and [Evaluation](#evaluation).
+**Status:** each role is given its stance, the weights it holds and the reasons for them, in place of the scattered judgment rules that carried the same weights. This wording was developed on the `cognitive-framing` branch and fast-forwarded into `main` from 4c6042b. The texts were checked with single-role probes: seven situations were run three times under this wording and three times under the rule-based wording at 4c6042b, and four situations that no rule addresses directly were run twice under each. The intended behaviour appeared in every run under both. This wording has not been run on a real task. See [The cognitive frame](#the-cognitive-frame) and [Evaluation](#evaluation).
 
 ## Start in under a minute
 
@@ -171,7 +171,7 @@ Main authors the contract and freezes it at revision 1; only Main can issue an a
 
 ### The cognitive frame
 
-On this branch each role is first told how it weighs things, and why. The text states a situation and what matters in it. It gives no prohibition and no step; what follows from it is the role's to work out. The steps and the facts about the runtime that a role could not work out for itself stay where they were.
+Each role is first told how it weighs things, and why. The text states a situation and what matters in it. It gives no prohibition and no step; what follows from it is the role's to work out. The steps and the facts about the runtime that a role could not work out for itself stay where they were.
 
 | Weight | Reason |
 |---|---|
@@ -310,7 +310,7 @@ Compare against a baseline without the skill using the same specification, model
 | Cost and quality | Records total tokens, elapsed time, acceptance pass rate, Main tokens, Main's first-release latency, and intervention count |
 | Stability across runs | The same situation, run many times, lands on the intended behaviour about as often from one batch to the next, and more often than under the rule-based protocol |
 
-The last row is the measure for the cognitive frame on this branch. The frame is there for consistency from one run to the next, so a single run cannot show whether it works.
+The last row is the measure for the cognitive frame. The frame is there for consistency from one run to the next, so a single run cannot show whether it works.
 
 Suggested smoke test: in a temporary directory, delegate a simple verifiable file-generation task and check the real invocation records of both agent layers; send an unrelated request to Main during execution; then simulate an unpassable acceptance check, a missing message channel, and a cancellation. Cross-check message sources, revisions, and states against the trace. Run tests only in approved directories.
 
@@ -318,8 +318,8 @@ This package has been statically checked, and its runtime mechanics (launch, add
 
 - **Single-role probes.** Each of the fifteen situations in `evals/scenarios.md` was run under the rule-based protocol, under an earlier stance wording, and with no protocol at all. All three behaved alike on the substance. What the protocol changes is listed in `evals/results/2026-11-27-none.md`.
 - **Real tasks.** The split task and the pricing task were each done three ways: by the chain, by one agent given the contract, and by one agent given one sentence. All three ways met each task. On the pricing task, scored by hidden tests, all three scored full marks. The chain cost the most. See `evals/results/2026-11-27-baseline-vs-chain.md` and `evals/results/2026-11-27-pricing-task.md`.
-- **Stability and reach.** On this branch, seven situations were run three times under this wording and three times under the rule-based protocol, 42 runs, and four situations that no rule addresses directly were run twice under each, 16 runs. The intended behaviour appeared in every run under both. So the stance wording is as stable as the rules and carries into situations that no rule addresses. It was not shown to be more stable or to reach further. See `evals/results/2026-11-28-stability-and-reach.md`.
-- **Not yet done.** Any run of this branch's wording on a real task.
+- **Stability and reach.** Seven situations were run three times under this wording and three times under the rule-based wording at 4c6042b, 42 runs, and four situations that no rule addresses directly were run twice under each, 16 runs. The intended behaviour appeared in every run under both. So the stance wording is as stable as the rules and carries into situations that no rule addresses. It was not shown to be more stable or to reach further. See `evals/results/2026-11-28-stability-and-reach.md`.
+- **Not yet done.** Any run of this wording on a real task.
 
 ## Contributing
 
